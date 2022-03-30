@@ -16,9 +16,14 @@ class Game {
     this.screen.drawEntities(this.tribe);
   }
 
+  get storage() {
+    return this.tribe.camp.storage;
+  }
+
   public advanceTime() {
     this.tribe.members.forEach((member) => {
-      member.doJob(this.world, this.screen);
+      // member.doJob(this.world, this.screen);
+      member.update();
     });
     if (this.tribe.members.length) {
       //   const player = this.tribe.members[0];

@@ -6,6 +6,7 @@ export enum TileName {
   TREE = "tree",
   STONE = "stone",
   WATER = "water",
+  TALL_GRASS = "tall_grass",
 }
 
 export interface Tile {
@@ -23,6 +24,7 @@ export const Tiles: TileMap = {
   GRASS: { color: "green", name: TileName.GRASS },
   STONE: { color: "gray", name: TileName.STONE },
   WATER: { color: "blue", name: TileName.WATER },
+  TALL_GRASS: { color: "#F5F5DC", name: TileName.TALL_GRASS },
 };
 
 export type WorldTiles = { [key: `${number}_${number}`]: Tile };
@@ -52,6 +54,7 @@ class World {
     };
 
     this.plantTrees();
+    this.plantTallGrass();
   }
 
   get tiles() {
@@ -71,7 +74,7 @@ class World {
   }
 
   private plantTrees() {
-    const TREE_THRESHOLD = 0.005;
+    const TREE_THRESHOLD = 0.002;
     // const TREE_THRESHOLD = 0.3;
 
     for (let y = 0; y < WORLD_HEIGHT; y++) {
@@ -81,7 +84,23 @@ class World {
         if (TREE_CALC < TREE_THRESHOLD && x !== 50 && y !== 50) {
           const tile = this.getTile({ x, y });
           tile.color = Tiles.TREE.color;
-          tile.name = TileName.TREE;
+          tile.name = Tiles.TREE.name;
+        }
+      }
+    }
+  }
+
+  private plantTallGrass() {
+    const TALL_GRASS_THRESHOLD = 0.005;
+
+    for (let y = 0; y < WORLD_HEIGHT; y++) {
+      for (let x = 0; x < WORLD_WIDTH; x++) {
+        const TREE_CALC = Math.random();
+
+        if (TREE_CALC < TALL_GRASS_THRESHOLD && x !== 50 && y !== 50) {
+          const tile = this.getTile({ x, y });
+          tile.color = Tiles.TALL_GRASS.color;
+          tile.name = Tiles.TALL_GRASS.name;
         }
       }
     }

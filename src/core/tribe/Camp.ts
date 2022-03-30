@@ -1,8 +1,11 @@
 import type { Position } from "../world/Position.interface";
-import type { Item } from "./Body";
+import type { Item } from "./Items";
 
-interface Storage {
+export interface Storage {
   [Item.WOOD_LOG]: number;
+  [Item.TALL_GRASS]: number;
+  [Item.ACORN]: number;
+  [Item.TALL_GRASS_SEED]: number;
 }
 
 class Camp {
@@ -12,6 +15,9 @@ class Camp {
   constructor() {
     this._storage = {
       wood_log: 0,
+      tall_grass: 0,
+      acorn: 0,
+      tall_grass_seed: 0,
     };
 
     this._position = { x: 50, y: 50 };

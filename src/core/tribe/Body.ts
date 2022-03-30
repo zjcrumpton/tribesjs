@@ -1,12 +1,4 @@
-import { TileName } from "../world/World";
-
-export enum Item {
-  WOOD_LOG = "wood_log",
-}
-
-const Items = {
-  [TileName.TREE]: Item.WOOD_LOG,
-};
+import type { Item } from "./Items";
 
 interface Hand {
   holding: Item | null;
@@ -28,14 +20,14 @@ class HumanBody {
     return !!this._leftHand.holding && !!this._rightHand.holding;
   };
 
-  public pickUpItem(item: TileName) {
+  public pickUpItem(item: Item) {
     if (!this._rightHand.holding) {
-      this._rightHand.holding = Items[item];
+      this._rightHand.holding = item;
       return;
     }
 
     if (!this._leftHand.holding) {
-      this._leftHand.holding = Items[item];
+      this._leftHand.holding = item;
       return;
     }
 

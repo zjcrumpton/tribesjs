@@ -3,17 +3,50 @@ import type Screen from "../screen/Screen";
 import type { Position } from "../world/Position.interface";
 import World, { TileName } from "../world/World";
 import HumanBody from "./Body";
+import { TileItems } from "./Items";
 import { Job, JobName, Jobs } from "./Jobs.enum";
 import type Tribe from "./Tribe";
+import MaleNames from "../../res/male-names.json";
+
+// Player adds jobs to a job queue
+// any tribesman assigned to that type of job can pick it up
+// tribesman will choose based on priority
+// if they are hungry, thirsty, or tired, that is higher
+// priority than their job.
+// They will do what they need to do then do their job,
+// then take another job from the job queue
+
+// allow player to say chop a specific tree, or they can just say gather x amount of wood
+// a specific tree will include a destination, if no specifics then they will search
+
+// switch over state
+
+enum HumanState {
+  IDLE,
+  WALKING,
+  WORKING,
+}
+
+interface HumanStateMachine {
+  state: HumanState;
+}
+
+const getRandomName = () => {
+  const randomIndex = Math.floor(Math.random() * MaleNames.data.length);
+  return MaleNames.data[randomIndex];
+};
 
 class Human {
+  private _name: string;
   private _job: Job;
   private _position: Position;
   private _body: HumanBody;
   private _destination: Position | null;
   private _visitedTiles: { [key: string]: number };
-  private SIGHT_RANGE = 50;
+  private SIGHT_RANGE = 100;
   private _tribe: Tribe;
+
+  private machine: HumanStateMachine;
 
   constructor(job: Job = Jobs.WOOD, position: Position, tribe: Tribe) {
     this._job = job;
@@ -21,6 +54,15 @@ class Human {
     this._visitedTiles = {};
     this._body = new HumanBody();
     this._tribe = tribe;
+    this._name = getRandomName();
+
+    this.machine = {
+      state: HumanState.IDLE,
+    };
+  }
+
+  get name() {
+    return this._name;
   }
 
   get job() {
@@ -31,11 +73,37 @@ class Human {
     return this._position;
   }
 
+  public update() {
+    switch (this.machine.state) {
+      case HumanState.IDLE:
+        this.wander();
+    }
+  }
+
+  private wander() {
+    const xAxis = Math.random();
+    const yAxis = Math.random();
+
+    const adjustXAxis = xAxis >= 0.5 ? 1 : -1;
+    const adjustYAxis = yAxis >= 0.5 ? 1 : -1;
+
+    this.position.x = Math.min(
+      Math.max(this.position.x + adjustXAxis, 0),
+      WORLD_WIDTH
+    );
+    this.position.y = Math.min(
+      Math.max(this.position.y + adjustYAxis, 0),
+      WORLD_HEIGHT
+    );
+  }
+
   public doJob(world: World, screen: Screen) {
     switch (this._job.name) {
       case JobName.WOOD:
         this.gather(world, TileName.TREE, screen);
         break;
+      case JobName.TALL_GRASS:
+        this.gather(world, TileName.TALL_GRASS, screen);
       default:
         return;
     }
@@ -72,16 +140,20 @@ class Human {
     if (currentTile && currentTile.name === tileName) {
       this._destination = null;
       try {
-        this._body.pickUpItem(tileName);
-        world.removeTile(this._position);
-        screen.drawWorld(world);
+        const itemsHere = TileItems[tileName];
+        itemsHere.forEach((i) => {
+          this._body.pickUpItem(i);
+          world.removeTile(this._position);
+          screen.drawWorld(world);
+        });
       } catch (err) {
         console.log(err);
         console.log("could not pick up log");
+        this._destination = this._tribe.camp.position;
       }
     }
 
-    this.searchAroundTile(currentTile.position, world, screen);
+    this.searchAroundTile(currentTile.position, world, screen, tileName);
   }
 
   private walkTowardDestination() {
@@ -102,6 +174,7 @@ class Human {
     pos: Position,
     world: World,
     screen: Screen,
+    tileName: TileName,
     distance = 0
   ) {
     // don't search too far
@@ -165,13 +238,13 @@ class Human {
         !this._visitedTiles[`${tile.position.x}_${tile.position.y}`]
       ) {
         // screen.drawDebug([tile.position], "#0000ff80");
-        if (tile.name === TileName.TREE) {
+        if (tile.name === tileName) {
           this._destination = tile.position;
         }
       }
     }
 
-    this.searchAroundTile(pos, world, screen, distance + 1);
+    this.searchAroundTile(pos, world, screen, tileName, distance + 1);
   }
 }
 
