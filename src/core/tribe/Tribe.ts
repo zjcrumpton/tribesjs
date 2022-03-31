@@ -9,8 +9,8 @@ class Tribe {
   private _jobList: JobList = new JobList();
 
   constructor() {
-    this._members.push(new Human(Jobs.WOOD, { x: 50, y: 50 }, this));
-    this.members.push(new Human(Jobs.TALL_GRASS, { x: 50, y: 50 }, this));
+    this._members.push(new Human({ x: 50, y: 50 }, this));
+    this.members.push(new Human({ x: 50, y: 50 }, this));
   }
 
   get members() {

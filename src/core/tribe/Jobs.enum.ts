@@ -1,3 +1,5 @@
+import { TileName } from "../world/World";
+
 export enum JobName {
   WOOD = "wood",
   TALL_GRASS = "tall_grass",
@@ -6,6 +8,15 @@ export enum JobName {
 export enum ResourceType {
   WOOD = "wood",
   TALL_GRASS = "tall_grass",
+}
+
+export function getTileNameFromResource(resource: ResourceType) {
+  switch (resource) {
+    case ResourceType.WOOD:
+      return TileName.TREE;
+    case ResourceType.TALL_GRASS:
+      return TileName.TALL_GRASS;
+  }
 }
 
 export interface Job {

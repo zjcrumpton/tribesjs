@@ -1,12 +1,14 @@
 import { WORLD_HEIGHT, WORLD_WIDTH } from "../constants";
 import type Screen from "../screen/Screen";
 import type { Position } from "../world/Position.interface";
-import World, { TileName } from "../world/World";
+import type { TileName } from "../world/World";
+import type World from "../world/World";
 import HumanBody from "./Body";
 import { TileItems } from "./Items";
-import { Job, JobName, Jobs } from "./Jobs.enum";
+import { getTileNameFromResource, Job, JobName, Jobs, ResourceType } from "./Jobs.enum";
 import type Tribe from "./Tribe";
 import MaleNames from "../../res/male-names.json";
+import { JobListing, JobType, PossibleJobs } from "./JobList";
 
 // Player adds jobs to a job queue
 // any tribesman assigned to that type of job can pick it up
@@ -23,12 +25,7 @@ import MaleNames from "../../res/male-names.json";
 
 enum HumanState {
   IDLE,
-  WALKING,
   WORKING,
-}
-
-interface HumanStateMachine {
-  state: HumanState;
 }
 
 const getRandomName = () => {
@@ -37,8 +34,9 @@ const getRandomName = () => {
 };
 
 class Human {
+  private _state: HumanState;
   private _name: string;
-  private _job: Job;
+  private _job: PossibleJobs | null;
   private _position: Position;
   private _body: HumanBody;
   private _destination: Position | null;
@@ -46,19 +44,19 @@ class Human {
   private SIGHT_RANGE = 100;
   private _tribe: Tribe;
 
-  private machine: HumanStateMachine;
 
-  constructor(job: Job = Jobs.WOOD, position: Position, tribe: Tribe) {
-    this._job = job;
+  constructor(position: Position, tribe: Tribe) {
+    this._job = null;
     this._position = position;
     this._visitedTiles = {};
     this._body = new HumanBody();
     this._tribe = tribe;
     this._name = getRandomName();
+    this._state = HumanState.IDLE;
+  }
 
-    this.machine = {
-      state: HumanState.IDLE,
-    };
+  get state() {
+    return this._state;
   }
 
   get name() {
@@ -69,14 +67,27 @@ class Human {
     return this._job;
   }
 
+  set job(job: PossibleJobs) {
+    this._job = job;
+  }
+
   get position() {
     return this._position;
   }
 
-  public update() {
-    switch (this.machine.state) {
+  public update(world: World, screen: Screen) {
+    if (!this._job && this._tribe.jobList.jobs.length) {
+      this._job = this._tribe.jobList.assignJob(this);
+      this._state = this._job ? HumanState.WORKING : HumanState.IDLE;
+    }
+
+    switch (this.state) {
       case HumanState.IDLE:
         this.wander();
+        break;
+      case HumanState.WORKING:
+       this.doJob(world, screen);
+       break;
     }
   }
 
@@ -98,14 +109,10 @@ class Human {
   }
 
   public doJob(world: World, screen: Screen) {
-    switch (this._job.name) {
-      case JobName.WOOD:
-        this.gather(world, TileName.TREE, screen);
+    switch (this._job.type) {
+      case JobType.GATHER:
+        this.gather(world, this._job.data.resource, screen);
         break;
-      case JobName.TALL_GRASS:
-        this.gather(world, TileName.TALL_GRASS, screen);
-      default:
-        return;
     }
   }
 
@@ -113,7 +120,9 @@ class Human {
    * Search the world for a resource and
    * attempt to bring it back to camp
    */
-  private gather(world: World, tileName: TileName, screen: Screen) {
+  private gather(world: World, resource: ResourceType, screen: Screen) {
+    const tileName = getTileNameFromResource(resource);
+
     this._visitedTiles = {};
 
     // if hands are full, head towards camp
@@ -131,8 +140,7 @@ class Human {
       this._destination = null;
       this._tribe.camp.storeItem(this._body.emptyLeftHand(), 1);
       this._tribe.camp.storeItem(this._body.emptyRightHand(), 1);
-
-      console.log(this._tribe.camp.storage);
+      this._job = null;
     }
 
     // check current tile for resource

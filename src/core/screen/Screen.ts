@@ -110,7 +110,7 @@ class Screen {
   };
 
   public renderHuman(human: Human) {
-    this.entityContext.fillStyle = human.job.color;
+    this.entityContext.fillStyle = human.job ? human.job.color : 'blue';
 
     this.entityContext.fillRect(
       human.position.x * (SCREEN_WIDTH / WORLD_WIDTH),

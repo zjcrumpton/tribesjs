@@ -20,10 +20,14 @@ class Game {
     return this.tribe.camp.storage;
   }
 
+  get jobList() {
+    return this.tribe.jobList;
+  }
+
   public advanceTime() {
     this.tribe.members.forEach((member) => {
       // member.doJob(this.world, this.screen);
-      member.update();
+      member.update(this.world, this.screen);
     });
     if (this.tribe.members.length) {
       //   const player = this.tribe.members[0];
