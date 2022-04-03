@@ -27,6 +27,7 @@
       <h2>Member: {job.member ? job.member.name : "nobody"}</h2>
       {#if job.type === "GATHER"}
         <h2>Amount: {job.data.quantity}</h2>
+        <h2>Resource: {job.data.resource}</h2>
       {/if}
     </div>
   {/each}

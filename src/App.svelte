@@ -81,9 +81,8 @@
   };
 </script>
 
-<Storage {storage} />
-
 {#if game}
+  <Storage {storage} />
   <Jobs {jobList} />
 {/if}
 
