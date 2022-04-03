@@ -4,6 +4,7 @@ import {
   SCREEN_WIDTH,
   SCREEN_HEIGHT,
 } from "../constants";
+import type Game from "../Game";
 import type Human from "../tribe/Human";
 import type Tribe from "../tribe/Tribe";
 import type { Position } from "../world/Position.interface";
@@ -18,8 +19,11 @@ class Screen {
   private entityContext: CanvasRenderingContext2D;
   private debugCanvas: HTMLCanvasElement;
   private debugContext: CanvasRenderingContext2D;
+  private game: Game;
 
-  constructor() {
+  constructor(game: Game) {
+    this.game = game;
+
     const root = document.getElementById("root");
     if (!root) throw new Error("no root element found");
     this.root = root;
@@ -42,7 +46,9 @@ class Screen {
     this.root.append(this.debugCanvas);
   }
 
-  public drawWorld(world: World) {
+  public drawWorld() {
+    const { world } = this.game;
+
     for (let y = 0; y < WORLD_HEIGHT; y++) {
       for (let x = 0; x < WORLD_WIDTH; x++) {
         this.renderTile(world.getTile({ x, y }));
@@ -50,7 +56,9 @@ class Screen {
     }
   }
 
-  public drawEntities(tribe: Tribe) {
+  public drawEntities() {
+    const { tribe } = this.game;
+
     this.entityContext.clearRect(
       0,
       0,

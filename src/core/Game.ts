@@ -3,39 +3,45 @@ import Tribe from "./tribe/Tribe";
 import World from "./world/World";
 
 class Game {
-  private screen: Screen;
-  private world: World;
-  private tribe: Tribe;
+  private _screen: Screen;
+  private _world: World;
+  private _tribe: Tribe;
 
   constructor() {
-    this.screen = new Screen();
-    this.world = new World();
-    this.tribe = new Tribe();
+    this._screen = new Screen(this);
+    this._world = new World(this);
+    this._tribe = new Tribe(this);
 
-    this.screen.drawWorld(this.world);
-    this.screen.drawEntities(this.tribe);
+    this._screen.drawWorld();
+    this._screen.drawEntities();
+  }
+
+  get world() {
+    return this._world;
+  }
+
+  get screen() {
+    return this._screen;
+  }
+
+  get tribe() {
+    return this._tribe;
   }
 
   get storage() {
-    return this.tribe.camp.storage;
+    return this._tribe.camp.storage;
   }
 
   get jobList() {
-    return this.tribe.jobList;
+    return this._tribe.jobList;
   }
 
   public advanceTime() {
-    this.tribe.members.forEach((member) => {
-      // member.doJob(this.world, this.screen);
-      member.update(this.world, this.screen);
+    this._tribe.members.forEach((member) => {
+      member.update();
     });
-    if (this.tribe.members.length) {
-      //   const player = this.tribe.members[0];
-      //   player.position.x += 1;
-      //   player.position.y += 1;
-    }
 
-    this.screen.drawEntities(this.tribe);
+    this._screen.drawEntities();
   }
 }
 

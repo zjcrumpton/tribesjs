@@ -9,6 +9,7 @@ import { getTileNameFromResource, Job, JobName, Jobs, ResourceType } from "./Job
 import type Tribe from "./Tribe";
 import MaleNames from "../../res/male-names.json";
 import { JobListing, JobType, PossibleJobs } from "./JobList";
+import type Game from "../Game";
 
 // Player adds jobs to a job queue
 // any tribesman assigned to that type of job can pick it up
@@ -43,9 +44,10 @@ class Human {
   private _visitedTiles: { [key: string]: number };
   private SIGHT_RANGE = 100;
   private _tribe: Tribe;
+  private _game: Game;
 
 
-  constructor(position: Position, tribe: Tribe) {
+  constructor(position: Position, tribe: Tribe, game: Game) {
     this._job = null;
     this._position = position;
     this._visitedTiles = {};
@@ -53,6 +55,7 @@ class Human {
     this._tribe = tribe;
     this._name = getRandomName();
     this._state = HumanState.IDLE;
+    this._game = game;
   }
 
   get state() {
@@ -75,7 +78,7 @@ class Human {
     return this._position;
   }
 
-  public update(world: World, screen: Screen) {
+  public update() {
     if (!this._job && this._tribe.jobList.jobs.length) {
       this._job = this._tribe.jobList.assignJob(this);
       this._state = this._job ? HumanState.WORKING : HumanState.IDLE;
@@ -86,7 +89,7 @@ class Human {
         this.wander();
         break;
       case HumanState.WORKING:
-       this.doJob(world, screen);
+       this.doJob();
        break;
     }
   }
@@ -108,10 +111,10 @@ class Human {
     );
   }
 
-  public doJob(world: World, screen: Screen) {
+  public doJob() {
     switch (this._job.type) {
       case JobType.GATHER:
-        this.gather(world, this._job.data.resource, screen);
+        this.gather(this._job.data.resource);
         break;
     }
   }
@@ -120,8 +123,9 @@ class Human {
    * Search the world for a resource and
    * attempt to bring it back to camp
    */
-  private gather(world: World, resource: ResourceType, screen: Screen) {
+  private gather(resource: ResourceType) {
     const tileName = getTileNameFromResource(resource);
+    const { world, screen } = this._game;
 
     this._visitedTiles = {};
 
@@ -152,7 +156,7 @@ class Human {
         itemsHere.forEach((i) => {
           this._body.pickUpItem(i);
           world.removeTile(this._position);
-          screen.drawWorld(world);
+          screen.drawWorld();
         });
       } catch (err) {
         console.log(err);
@@ -184,7 +188,7 @@ class Human {
     screen: Screen,
     tileName: TileName,
     distance = 0
-  ) {
+  ) { 
     // don't search too far
     if (distance > this.SIGHT_RANGE) {
       return;

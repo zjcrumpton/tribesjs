@@ -1,4 +1,5 @@
 import { WORLD_HEIGHT, WORLD_WIDTH } from "../constants";
+import type Game from "../Game";
 import type { Position } from "./Position.interface";
 
 export enum TileName {
@@ -47,11 +48,14 @@ const createDefaultWorld = (width: number, height: number): WorldTiles => {
 
 class World {
   private state: WorldState;
+  private game: Game;
 
-  constructor() {
+  constructor(game) {
     this.state = {
       tiles: createDefaultWorld(WORLD_WIDTH, WORLD_HEIGHT),
     };
+
+    this.game = game;
 
     this.plantTrees();
     this.plantTallGrass();
