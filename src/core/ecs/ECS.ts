@@ -7,7 +7,7 @@ export class ECS {
     const entity = new Entity();
      ECS.increaseCount();
 
-     return entity;
+     return entity
   }
 
   static get count() {

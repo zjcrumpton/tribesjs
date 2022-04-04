@@ -22,7 +22,7 @@ export class Entity {
     this._components = { ...this._components, ...component };
   }
 
-  public removeComponent(componentName: string) {
+  public removeComponent(componentName: keyof ComponentMap) {
     delete this._components[componentName];
   }
 

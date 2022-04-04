@@ -12,8 +12,7 @@ et.print();
 
 const e2 = new Entity();
 e2.addComponent(NameComponent());
-e2.print();
-console.log(e2.components.name.value)
+e2.print()
 class Game {
   private _screen: Screen;
   private _world: World;
