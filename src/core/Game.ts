@@ -1,6 +1,18 @@
+import { Entity } from "./ecs";
+import { HealthComponent, NameComponent, PositionComponent } from "./ecs/components";
 import Screen from "./screen/Screen";
 import Tribe from "./tribe/Tribe";
 import World from "./world/World";
+
+const et = new Entity();
+et.addComponent(NameComponent());
+et.addComponent(HealthComponent(50));
+et.addComponent(PositionComponent());
+et.print();
+
+const e2 = new Entity();
+e2.addComponent(NameComponent());
+e2.print();
 
 class Game {
   private _screen: Screen;
