@@ -3,7 +3,7 @@ import type { Component, ComponentMap } from "./Component.type";
 
 export class Entity {
   private _id: string;
-  private _components: Partial<ComponentMap>;
+  private _components: ComponentMap;
 
   constructor() {
     this._id = generateGuid();
