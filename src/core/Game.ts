@@ -1,8 +1,8 @@
-import { Entity } from "./ecs";
-import { HealthComponent, NameComponent, PositionComponent } from "./ecs/components";
-import Screen from "./screen/Screen";
-import Tribe from "./tribe/Tribe";
-import World from "./world/World";
+import { Entity } from './ecs';
+import { HealthComponent, NameComponent, PositionComponent } from './ecs/components';
+import Screen from './screen/Screen';
+import Tribe from './tribe/Tribe';
+import World from './world/World';
 
 const et = new Entity();
 et.addComponent(NameComponent());
@@ -12,7 +12,7 @@ et.print();
 
 const e2 = new Entity();
 e2.addComponent(NameComponent());
-e2.print()
+e2.print();
 class Game {
   private _screen: Screen;
   private _world: World;
@@ -48,7 +48,7 @@ class Game {
   }
 
   public advanceTime() {
-    this._tribe.members.forEach((member) => {
+    this._tribe.members.forEach(member => {
       member.update();
     });
 
